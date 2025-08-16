@@ -58,4 +58,4 @@ jobs:
           
           View details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         to: blaisemwinston@gmail.com
-        from: Github action blaisecodex1@github.com
+        from: blaisecodex1@github.com
