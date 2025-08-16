@@ -1,0 +1,61 @@
+name: Security Scan with Python, Snyk & Email
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    # Set up Python environment
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'  # Specify your Python version
+        
+    # Install Python dependencies if needed
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt  # If you have requirements
+        
+    # Run your bash script
+    - name: Execute bash script
+      run: |
+        chmod +x ./your-script.sh
+        ./your-script.sh
+        
+    # Run your Python script
+    - name: Execute Python script
+      run: python your_script.py
+    
+    # Snyk integration
+    - name: Run Snyk security scan
+      uses: snyk/actions/setup@master
+      continue-on-error: true
+      with:
+        args: test --all-projects
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        
+    # Email notification with Python script results
+    - name: Send email notification
+      if: always()
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: 94dbd3001@smtp-brevo.com
+        server_port: 587
+        username: ${{ secrets.EMAIL_USERNAME }}
+        password: ${{ secrets.EMAIL_PASSWORD }}
+        subject: "GitHub Commit: Security Scan & Python Results"
+        body: |
+          Commit: ${{ github.sha }}
+          Python script output: See attached workflow logs
+          Snyk scan completed
+          
+          View details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        to: blaisemwinston@gmail.com
+        from: Github action blaisecodex1@github.com
