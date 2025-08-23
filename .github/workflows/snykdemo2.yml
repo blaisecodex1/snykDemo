@@ -30,7 +30,7 @@ jobs:
         
     # Run your Python script
     - name: Execute Python script
-      run: python your_script.py
+      run: python script.py
     
     # Snyk integration
     - name: Run Snyk security scan
@@ -43,19 +43,15 @@ jobs:
         
     # Email notification with Python script results
     - name: Send email notification
-      if: always()
-      uses: dawidd6/action-send-mail@v3
+      uses: hilarion5/send-mail@v1
       with:
-        server_address: 94dbd3001@smtp-brevo.com
-        server_port: 587
-        username: ${{ secrets.EMAIL_USERNAME }}
-        password: ${{ secrets.EMAIL_PASSWORD }}
-        subject: "GitHub Commit: Security Scan & Python Results"
-        body: |
-          Commit: ${{ github.sha }}
-          Python script output: See attached workflow logs
-          Snyk scan completed
-          
-          View details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        to: blaisemwinston@gmail.com
-        from: blaisecodex1@github.com
+        smtp_server: smtp-relay.brevo.com
+        smtp_port: 465
+        username: ${{ secrets.EM_USERNAME }}
+        password: ${{ secrets.EM_PASSWORD }}
+        subject: GitHub Commit Security Scan & Python Results
+        to-email: blaisemwinston@gmail.com
+        from-email: blaisecodex1@github.com
+        html: |  
+          <h1>This is a test demo blah</h1>
+        
