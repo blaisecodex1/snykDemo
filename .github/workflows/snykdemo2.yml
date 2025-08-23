@@ -1,57 +1,57 @@
-name: Security Scan with Python, Snyk & Email
+name: Python Script and Snyk Scan with Email Notification
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main # Trigger on push to the main branch
 
 jobs:
-  security-scan:
+  security-and-script:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v3
-    
-    # Set up Python environment
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'  # Specify your Python version
-        
-    # Install Python dependencies if needed
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt  # If you have requirements
-        
-    # Run your bash script
-    - name: Execute bash script
-      run: |
-        chmod +x ./your-script.sh
-        ./your-script.sh
-        
-    # Run your Python script
-    - name: Execute Python script
-      run: python script.py
-    
-    # Snyk integration
-    - name: Run Snyk security scan
-      uses: snyk/actions/setup@master
-      continue-on-error: true
-      with:
-        args: test --all-projects
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        
-    # Email notification with Python script results
-    - name: Send email notification
-      uses: hilarion5/send-mail@v1
-      with:
-        smtp_server: smtp-relay.brevo.com
-        smtp_port: 465
-        username: ${{ secrets.EM_USERNAME }}
-        password: ${{ secrets.EM_PASSWORD }}
-        subject: GitHub Commit Security Scan & Python Results
-        to-email: blaisemwinston@gmail.com
-        from-email: blaisecodex1@github.com
-        html: |  
-          <h1>This is a test demo blah</h1>
-        
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # Step 4: Run Snyk to check for vulnerabilities
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/python-3.10@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --sarif-file-output=snyk.sarif
+        continue-on-error: true # Continue even if vulnerabilities are found
+
+
+      # Step 6: Run the Python script
+      - name: Run Python script
+        run: python script.py
+
+      # Step 7: Send email notification
+      - name: Send email notification
+        uses: hilarion5/send-mail@v1
+        with:
+          smtp-server: smtp-relay.brevo.com
+          smtp-port: 465
+          smtp-secure: true
+          username: ${{ secrets.EM_USERNAME }}
+          password: ${{ secrets.EM_PASSWORD }}
+          subject: Snyk Scan and Python Script Execution Report
+          from-email: blaisewinston52@gmail.com
+          to-email: officialblaisetv@gmail.com
+          html: |
+            <h1> This is a test demo blah</h1>
+            <p> Yo </p.>
